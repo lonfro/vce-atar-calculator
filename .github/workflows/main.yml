@@ -1,0 +1,29 @@
+    name: Deploy to GitHub Pages
+
+    on:
+      workflow_dispatch: 
+      push:
+        branches:
+          - main # Triggers the workflow when pushing to the main branch
+
+    permissions:
+      contents: write # Required to allow the action to commit to the gh-pages branch
+
+    jobs:
+      build-and-deploy:
+        concurrency: ci-${{ github.ref }} # Prevents concurrent deployment conflicts
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout Repo 🛎️
+            uses: actions/checkout@v4
+
+          - name: Install and Build 🔧
+            run: |
+              npm ci          # Installs dependencies lock-file accurately
+              npm run build   # Compiles to dist/index.html
+
+          - name: Deploy to gh-pages 🚀
+            uses: JamesIves/github-pages-deploy-action@v4
+            with:
+              folder: dist    # Deploys the CONTENTS of dist/ to the root of the target branch
+              branch: gh-pages 
